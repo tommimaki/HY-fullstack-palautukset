@@ -10,11 +10,14 @@ const App = () => {
   console.log("render", persons.length, "notes");
 
   useEffect(() => {
+    fetchAll();
+  }, []);
+
+  const fetchAll = () => {
     personService.getAll().then((initialPersons) => {
       setPersons(initialPersons);
     });
-  }, []);
-
+  };
   const [newName, setNewName] = useState("");
   const [number, setNumber] = useState("");
   const [search, setSearch] = useState("");
@@ -36,12 +39,44 @@ const App = () => {
     };
 
     if (persons.some((person) => person.name === newName)) {
-      alert(`${newName} is already added to the phonebook.`);
+      if (
+        window.confirm(
+          `${newName} is already added to the phonebook, update number?`
+        )
+      );
+      {
+        const existingPerson = persons.find(
+          (person) => person.name === personObject.name
+        );
+        personService
+          .update(existingPerson.id, personObject)
+          .then((updatedPerson) => {
+            setPersons(
+              persons.map((person) =>
+                person.id !== existingPerson.id ? person : updatedPerson
+              )
+            );
+            setNewName("");
+            setNumber("");
+          })
+          .catch((error) => {
+            console.log(error);
+          });
+      }
     } else {
       personService.create(personObject).then((returnedPerson) => {
         setPersons(persons.concat(returnedPerson));
         setNewName("");
         setNumber("");
+      });
+    }
+  };
+
+  const handleDeletePerson = (person) => {
+    if (window.confirm(`Delete ${person.name}`)) {
+      personService.deletePerson(person.id).then(() => {
+        const updatedPersons = persons.filter((p) => p.id !== person.id);
+        setPersons(updatedPersons);
       });
     }
   };
@@ -66,7 +101,10 @@ const App = () => {
         addPerson={addPerson}
       />
       <h2>Persons</h2>
-      <Persons filteredPersons={filteredPersons} />
+      <Persons
+        filteredPersons={filteredPersons}
+        deletePerson={handleDeletePerson}
+      />
     </div>
   );
 };
