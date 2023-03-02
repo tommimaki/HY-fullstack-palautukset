@@ -1,13 +1,17 @@
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+.statusmsg {
+  background-color: rgb(38, 181, 81);
+  color: white;
+  padding: 10px;
+  margin: 20px;
+  width: 20%;
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+.errormsg {
+  background-color: rgb(171, 0, 0);
+  color: white;
+  border-color: blueviolet;
+
+  padding: 10px;
+  margin: 20px;
+  width: 20%;
 }

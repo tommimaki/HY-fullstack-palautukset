@@ -3,7 +3,7 @@ import Filter from "./components/Filter";
 import Form from "./components/Form";
 import Persons from "./components/Persons";
 import personService from "./services/persons";
-
+import StatusMsg from "./components/StatusMsg";
 const App = () => {
   const [persons, setPersons] = useState([]);
 
@@ -21,9 +21,17 @@ const App = () => {
   const [newName, setNewName] = useState("");
   const [number, setNumber] = useState("");
   const [search, setSearch] = useState("");
+  const [status, setStatus] = useState({ msg: null, err: false });
 
   const handleSearch = (event) => {
     setSearch(event.target.value);
+  };
+
+  const handleStatusText = (message, error) => {
+    setStatus({ msg: message, err: error });
+    setTimeout(() => {
+      setStatus({ msg: null, err: false });
+    }, 5000);
   };
 
   const filteredPersons = persons.filter((person) =>
@@ -56,15 +64,21 @@ const App = () => {
                 person.id !== existingPerson.id ? person : updatedPerson
               )
             );
+            handleStatusText(
+              `Updated ${existingPerson.name}'s phone number`,
+              false
+            );
             setNewName("");
             setNumber("");
           })
           .catch((error) => {
+            handleStatusText(error.response.data.error, true);
             console.log(error);
           });
       }
     } else {
       personService.create(personObject).then((returnedPerson) => {
+        handleStatusText(`Added ${personObject.name} to phonebook`, false);
         setPersons(persons.concat(returnedPerson));
         setNewName("");
         setNumber("");
@@ -74,10 +88,21 @@ const App = () => {
 
   const handleDeletePerson = (person) => {
     if (window.confirm(`Delete ${person.name}`)) {
-      personService.deletePerson(person.id).then(() => {
-        const updatedPersons = persons.filter((p) => p.id !== person.id);
-        setPersons(updatedPersons);
-      });
+      personService
+        .deletePerson(person.id)
+        .then(() => {
+          const updatedPersons = persons.filter((p) => p.id !== person.id);
+          setPersons(updatedPersons);
+        })
+        .then(() =>
+          handleStatusText(`Removed ${person.name} from phonebook`, false)
+        )
+        .catch((error) =>
+          handleStatusText(
+            `${person.name} has already been removed from the server`,
+            true
+          )
+        );
     }
   };
 
@@ -91,6 +116,7 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
+      <StatusMsg status={status} />
       <Filter search={search} handleSearch={handleSearch} />
 
       <Form
