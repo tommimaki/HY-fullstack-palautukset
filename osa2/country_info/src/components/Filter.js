@@ -1,7 +1,16 @@
 import React, { useEffect, useState } from "react";
+import CountryDetails from "./CountryDetails";
 
 const Filter = ({ countries, searchterm }) => {
   const [matches, setMatches] = useState(countries);
+  const [selectedCountry, setSelectedCountry] = useState(null);
+
+  const handleShowClick = (country) => {
+    setSelectedCountry(country);
+  };
+  const handleHideClick = () => {
+    setSelectedCountry(null);
+  };
 
   useEffect(() => {
     setMatches(
@@ -13,33 +22,44 @@ const Filter = ({ countries, searchterm }) => {
 
   let displayContent;
 
-  if (matches.length > 10) {
-    displayContent = <p>Please be more specific in your search.</p>;
-  } else if (matches.length === 1) {
-    const country = matches[0];
-    displayContent = (
+  if (selectedCountry) {
+    return (
       <div>
-        <h2>{country.name.common}</h2>
-        <p>Capital: {country.capital[0]}</p>
-        <p>Area: {country.area} km²</p>
-        <p>Languages: {Object.values(country.languages).join(", ")}</p>
-        <img src={country.flags.png} alt={`Flag of ${country.name.common}`} />
+        <button onClick={handleHideClick}>Hide</button>
+        <CountryDetails country={selectedCountry} />
       </div>
     );
-  } else if (matches.length > 0) {
-    displayContent = (
-      <div>
-        <p>Countries that match:</p>
-        {matches.map((country) => (
-          <p key={country.name.common}>{country.name.common}</p>
-        ))}
-      </div>
-    );
-  } else {
-    displayContent = <p>No countries match your search.</p>;
   }
 
-  return <div>{displayContent}</div>;
+  if (selectedCountry) {
+    return (
+      <div>
+        <button onClick={handleHideClick}>Hide</button>
+        <CountryDetails country={selectedCountry} />
+      </div>
+    );
+  }
+
+  if (matches.length > 10) {
+    return <p>Please be more specific in your search.</p>;
+  }
+
+  if (matches.length === 1) {
+    return <CountryDetails country={matches[0]} />;
+  }
+
+  return (
+    <div>
+      {matches.map((country) => (
+        <div key={country.name.common}>
+          <p>
+            {country.name.common}{" "}
+            <button onClick={() => handleShowClick(country)}>Show</button>
+          </p>
+        </div>
+      ))}
+    </div>
+  );
 };
 
 export default Filter;
