@@ -77,12 +77,17 @@ const App = () => {
           });
       }
     } else {
-      personService.create(personObject).then((returnedPerson) => {
-        handleStatusText(`Added ${personObject.name} to phonebook`, false);
-        setPersons(persons.concat(returnedPerson));
-        setNewName("");
-        setNumber("");
-      });
+      personService
+        .create(personObject)
+        .then((returnedPerson) => {
+          handleStatusText(`Added ${personObject.name} to phonebook`, false);
+          setPersons(persons.concat(returnedPerson));
+          setNewName("");
+          setNumber("");
+        })
+        .catch((error) => {
+          handleStatusText(error.response.data.error, true);
+        });
     }
   };
 
